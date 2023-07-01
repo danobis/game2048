@@ -112,8 +112,9 @@ jobs:
           curl -I http://localhost:8080/game2048  # Send a request to verify if the app is accessible
           
   deploy_stop:
-    needs: package
+    needs: deploy_deploy
     runs-on: self-hosted
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Check Out Repository
         uses: actions/checkout@v2
