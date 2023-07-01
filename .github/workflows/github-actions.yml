@@ -1,6 +1,10 @@
 name: game2048_pipeline
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: self-hosted
@@ -14,6 +18,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Install Maven
+        run: |
+          sudo apt-get install -y maven
+
       - name: Build
         run: mvn compile
 
@@ -22,7 +30,7 @@ jobs:
         with:
           name: ${{ github.job }}-$GITHUB_REF_SLUG-${{ github.sha }}
           path: target/*
-      
+
       - name: Cache Maven Packages
         uses: actions/cache@v2
         with:
@@ -49,6 +57,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       
+      - name: Install Maven
+        run: |
+          sudo apt-get install -y maven
+
       - name: Test
         run: mvn test
 
