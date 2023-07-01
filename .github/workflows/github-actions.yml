@@ -33,7 +33,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Restore Maven Packages from Cache
         uses: actions/cache@v2
@@ -46,8 +47,6 @@ jobs:
       - name: Test
         run: mvn test
 
-      # ... (other steps for test)
-
   analyze:
     needs: [build, test]
     runs-on: self-hosted
@@ -58,7 +57,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Restore Maven Packages from Cache
         uses: actions/cache@v2
@@ -71,8 +71,6 @@ jobs:
       - name: Analyze with SonarQube
         run: mvn sonar:sonar -Dsonar.projectKey=game2048 -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=$sonar_login -Dsonar.qualitygate.wait=false
 
-      # ... (other steps for analyze)
-
   package:
     needs: build
     runs-on: self-hosted
@@ -83,7 +81,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Restore Maven Packages from Cache
         uses: actions/cache@v2
@@ -96,8 +95,6 @@ jobs:
       - name: Package
         run: mvn package
 
-      # ... (other steps for package)
-
   deploy_deploy:
     needs: package
     runs-on: self-hosted
@@ -108,7 +105,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Restore Maven Packages from Cache
         uses: actions/cache@v2
@@ -131,8 +129,6 @@ jobs:
         run: |
           docker run --rm -d --name tomcat -p 8080:8080 game2048
 
-      # ... (other steps for deploy_deploy)
-
   deploy_stop:
     needs: package
     runs-on: self-hosted
@@ -143,7 +139,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Restore Maven Packages from Cache
         uses: actions/cache@v2
@@ -157,5 +154,3 @@ jobs:
         run: |
           docker rm --force tomcat
           docker image rm --force game2048
-
-      # ... (other steps for deploy_stop)
