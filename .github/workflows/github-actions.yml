@@ -18,24 +18,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Maven
-        run: |
-          sudo apt-get install -y maven
+      - name: Cache Maven Packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ runner.workspace }}/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
       - name: Build
-        run: mvn compile
+        run: |
+          if [ ! -f /usr/bin/mvn ]; then
+            echo "Maven not found, installing..."
+            sudo apt-get install -y maven
+          fi
+          mvn compile
 
       - name: Archive Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-$GITHUB_REF_SLUG-${{ github.sha }}
           path: target/*
-
-      - name: Cache Maven Packages
-        uses: actions/cache@v2
-        with:
-          path: ${{ runner.workspace }}/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
   test:
     needs: build
@@ -49,17 +52,13 @@ jobs:
         with:
           java-version: '11'
 
-      - name: Restore Maven Packages from Cache
+      - name: Cache Maven Packages
         uses: actions/cache@v2
         with:
           path: ${{ runner.workspace }}/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      
-      - name: Install Maven
-        run: |
-          sudo apt-get install -y maven
 
       - name: Test
         run: mvn test
@@ -70,9 +69,3 @@ jobs:
           path: |
             target/surefire-reports/*
             target/site/jacoco/*
-
-      - name: Cache Maven Packages
-        uses: actions/cache@v2
-        with:
-          path: ${{ runner.workspace }}/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
