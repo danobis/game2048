@@ -101,7 +101,7 @@ jobs:
 
       - name: Deploy - Start Docker Container
         run: |
-          docker run --rm -d --name tomcat -p 8080:8080 game2048
+          docker run --rm -d --name tomcat -p 8081:8080 game2048
 
       - name: Wait for Deployment
         run: |
@@ -109,7 +109,7 @@ jobs:
 
       - name: Verify Deployment
         run: |
-          curl -I http://localhost:8080/game2048  # Send a request to verify if the app is accessible
+          curl -I http://localhost:8081/game2048  # Send a request to verify if the app is accessible
           
   deploy_stop:
     needs: deploy_deploy
