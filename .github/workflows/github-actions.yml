@@ -1,67 +1,67 @@
 name: game2048_pipeline
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+
 on:
   push:
     branches:
       - main
 
+env:
+  maven_packages_cache: ".m2/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=./$maven_packages_cache"
+
 jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Check Out Repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
 
       - name: Cache Maven Packages
         uses: actions/cache@v2
         with:
-          path: ${{ runner.workspace }}/.m2/repository
+          path: ${{ env.maven_packages_cache }}
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
       - name: Build
-        run: |
-          if [ ! -f /usr/bin/mvn ]; then
-            echo "Maven not found, installing..."
-            sudo apt-get install -y maven
-          fi
-          mvn compile
+        run: mvn compile $MAVEN_OPTS
 
       - name: Archive Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-$GITHUB_REF_SLUG-${{ github.sha }}
+          name: ${{ github.job }}-${{ github.ref_slug }}-${{ github.sha }}
           path: target/*
-
+      
   test:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Check Out Repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: '17'
+          distribution: temurin
 
-      - name: Cache Maven Packages
+      - name: Restore Maven Packages from Cache
         uses: actions/cache@v2
         with:
-          path: ${{ runner.workspace }}/.m2/repository
+          path: ${{ env.maven_packages_cache }}
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-
+      
       - name: Test
-        run: mvn test
+        run: mvn test $MAVEN_OPTS
 
       - name: Archive Test Reports and Coverage
         uses: actions/upload-artifact@v2
